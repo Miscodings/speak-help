@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>real-time voice transcription</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+  <style>
+    :root {
+      --blue-bg: #9fcdff;
+      --blue-primary: #3b82f6;
+      --blue-accent: #2563eb;
+      --text-dark: #1e293b;
+      --white: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+    
+    html, body {
+      height: 100%;
+      min-height: 100%;
+      background: linear-gradient(135deg, var(--blue-bg), #f0f7ff);
+      background-attachment: fixed;
+      background-size: cover;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      text-align: center;
+      background: linear-gradient(135deg, var(--blue-bg), #f0f7ff);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      font-family: 'Caveat', cursive;
+      font-size: 3rem;
+      color: var(--blue-accent);
+      margin-top: 40px;
+      text-shadow: 1px 1px 0 var(--white);
+    }
+
+    p {
+      font-size: 1rem;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: var(--blue-primary);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      margin: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 3px 10px var(--shadow);
+    }
+
+    button:hover {
+      background-color: var(--blue-accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    button:disabled {
+      background-color: #9cbef7;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .stats-container {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin: 20px auto;
+    }
+
+    .stat-box {
+        background-color: var(--white);
+        padding: 10px 20px;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px var(--shadow);
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--text-dark);
+        min-width: 130px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-box strong {
+        color: var(--blue-primary);
+        margin-right: 8px;
+    }
+    
+    .stat-box span {
+        font-weight: 700;
+        color: var(--blue-accent);
+        font-size: 1.2rem;
+    }
+
+    .stat-box .icon {
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        transition: transform 0.2s ease-in-out;
+    }
+
+    .stat-box .note {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--blue-accent);
+        opacity: 0.9;
+    }
+
+    .subtitle {
+        font-size: 1.1rem;
+        color: #64748b;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+
+    #transcription {
+        width: 75%;
+        margin: 30px auto;
+        padding: 25px;
+        border-radius: 16px;
+        background-color: var(--white);
+        box-shadow: 0 4px 16px var(--shadow);
+        text-align: left;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        min-height: 150px;
+        transition: box-shadow 0.3s ease;
+    }
+
+    #transcription:hover {
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.2);
+    }
+
+    em {
+        color: var(--blue-accent);
+        font-style: normal;
+        font-weight: 500;
+        opacity: 0.8;
+    }
+
+    h2 {
+        margin-top: 20px;
+        font-size: 1.5rem;
+        color: var(--blue-primary);
+        letter-spacing: 0.5px;
+    }
+
+    .filler-word {
+        background-color: #fff6aa;
+        color: #b45309;
+        font-style: italic;
+        padding: 2px 4px;
+        border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>speakhelp - real-time public speaking feedback 🎙️</h1>
+  <p class="subtitle">by justin dutta</p>
+  <a href="/history" style="text-decoration: none; font-weight: 600; color: var(--blue-primary);">view progress history →</a>
+  <p>click “start recording” and speak your magic ✨</p>
+  <button id="startButton">start recording</button>
+  <button id="stopButton" disabled>stop recording</button>
+
+  <div class="stats-container">
+    <div id="wpm-display" class="stat-box">
+      <strong>WPM:</strong> <span>0</span>
+    </div>
+    <div id="filler-count-display" class="stat-box">
+        <strong>Fillers:</strong> <span>0</span>
+    </div>
+    <div id="feedback-display" class="stat-box">
+    <strong>feedback:</strong>
+    <span class="icon">😮‍💨 <span class="note">: ̗̀➛ deep breaths, you got this.</span></span>
+    </div>
+  </div>
+
+  <h2>live transcription:</h2>
+  <div id="transcription">
+    <p><em>transcription will appear here...</em></p>
+  </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const socket = io();
+        const startButton = document.getElementById('startButton');
+        const stopButton = document.getElementById('stopButton');
+        const transcriptionDiv = document.getElementById('transcription');
+        
+        const wpmDisplay = document.getElementById('wpm-display');
+        const wpmSpan = wpmDisplay.querySelector('span');
+        const wpmLabel = wpmDisplay.querySelector('strong');
+        const fillerCountSpan = document.getElementById('filler-count-display').querySelector('span');
+        const feedbackIconSpan = document.getElementById('feedback-display').querySelector('span');
+
+        let audioContext, audioStream, scriptProcessor;
+        let statsInterval, startTime;
+        // No longer need lastWordCount
+
+        const SAMPLE_RATE = 16000;
+        const fillerWords = ["um", "uh", "like", "basically", "actually", "you know", "so", "literally", "i mean", "well"];
+
+        function highlightFillerWords(text) {
+            let escaped = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            fillerWords.forEach(word => {
+                const regex = new RegExp(`\\b${word}\\b`, "gi");
+                escaped = escaped.replace(regex, match => `<span class="filler-word">${match}</span>`);
+            });
+            return escaped;
+        }
+
+        function updateRealtimeStats() {
+            const currentText = transcriptionDiv.innerText;
+            const words = currentText.trim().split(/\s+/).filter(word => word.length > 0);
+            const wordCount = words.length;
+            
+            // --- REVERTED TO STABLE AVERAGE WPM CALCULATION ---
+            const elapsedTimeInMinutes = (Date.now() - startTime) / 60000;
+            let currentWPM = 0;
+            if (elapsedTimeInMinutes > 0) {
+                currentWPM = Math.round(wordCount / elapsedTimeInMinutes);
+                wpmSpan.textContent = currentWPM;
+            }
+            // --------------------------------------------------
+            
+            let fillerCount = 0;
+            fillerWords.forEach(filler => {
+                const regex = new RegExp(`\\b${filler}\\b`, "gi");
+                const matches = currentText.match(regex) || [];
+                fillerCount += matches.length;
+            });
+            fillerCountSpan.textContent = fillerCount;
+
+            if (wordCount < 5) {
+                feedbackIconSpan.innerHTML = '😮‍💨 <span class="note">: ̗̀➛ deep breaths, you got this.</span>';
+                return;
+            }
+
+            const fillerRatio = wordCount > 0 ? fillerCount / wordCount : 0;
+            // Using average WPM for feedback, which is more stable
+            if (fillerRatio > 0.15) {
+                feedbackIconSpan.innerHTML = '💬 <span class="note">: ̗̀➛ watch your words!</span>';
+            } else if (currentWPM > 160) {
+                feedbackIconSpan.innerHTML = '⏳ <span class="note">: ̗̀➛ slow down a bit!</span>';
+            } else if (currentWPM < 90 && wordCount > 10) {
+                feedbackIconSpan.innerHTML = '😮‍💨 <span class="note">: ̗̀➛ deep breaths, you got this.</span>';
+            } else {
+                feedbackIconSpan.innerHTML = '👍 <span class="note">: ̗̀➛ keep it up!</span>';
+            }
+        }
+
+        socket.on('connect', () => { console.log('connected to server'); });
+        socket.on('disconnect', () => { console.log('disconnected from server'); });
+
+        socket.on('transcription_update', (text) => {
+            const initialMessage = transcriptionDiv.querySelector('p > em');
+            if (initialMessage) transcriptionDiv.innerHTML = "";
+            transcriptionDiv.innerHTML += highlightFillerWords(text) + " ";
+        });
+
+        startButton.onclick = async () => {
+            // --- NEW: TELL THE SERVER TO START ITS TIMER ---
+            socket.emit('start_recording');
+            // ---------------------------------------------
+            
+            transcriptionDiv.innerHTML = '<p><em>recording... speak now!</em></p>';
+
+            wpmLabel.textContent = 'WPM:';
+            wpmSpan.textContent = '0';
+            fillerCountSpan.textContent = '0';
+            feedbackIconSpan.innerHTML = '😮‍💨 <span class="note">: ̗̀➛ deep breaths, you got this.</span>';
+            startTime = Date.now(); // Browser timer
+            lastWordCount = 0;
+            clearInterval(statsInterval);
+            statsInterval = setInterval(updateRealtimeStats, 2000);
+
+            try {
+                audioStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: SAMPLE_RATE });
+                const source = audioContext.createMediaStreamSource(audioStream);
+                scriptProcessor = audioContext.createScriptProcessor(4096, 1, 1);
+                scriptProcessor.onaudioprocess = (event) => {
+                    const inputData = event.inputBuffer.getChannelData(0);
+                    socket.emit('audio_chunk', inputData.buffer);
+                };
+                source.connect(scriptProcessor);
+                scriptProcessor.connect(audioContext.destination);
+                startButton.disabled = true;
+                stopButton.disabled = false;
+            } catch (e) {
+                console.error("error starting recording:", e);
+                alert("could not access the microphone. please grant permission and try again.");
+            }
+        };
+
+        stopButton.onclick = () => {
+            if (scriptProcessor) { scriptProcessor.disconnect(); scriptProcessor = null; }
+            if (audioStream) { audioStream.getTracks().forEach(track => track.stop()); }
+            if (audioContext) { audioContext.close(); }
+
+            clearInterval(statsInterval);
+            
+            // The final calculation is now handled by the main function, but we call it
+            // one last time to ensure the display is perfectly up to date.
+            updateRealtimeStats();
+            wpmLabel.textContent = 'Avg WPM:'; // Change label to "Avg WPM" on stop
+
+            const finalText = transcriptionDiv.innerText;
+            socket.emit('stop_recording', finalText);
+            
+            console.log("sending 'stop_recording' event to server.");
+            startButton.disabled = false;
+            stopButton.disabled = true;
+        };
+    });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>speaking progress history 📈</title>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --blue-bg: #9fcdff;
+      --blue-primary: #3b82f6;
+      --blue-accent: #2563eb;
+      --text-dark: #1e293b;
+      --white: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.08);
+    }
+
+    html, body {
+      height: 100%;
+      background: linear-gradient(135deg, var(--blue-bg), #f0f7ff);
+      background-attachment: fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+      font-family: 'Poppins', sans-serif;
+      color: var(--text-dark);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(10px);
+      border-radius: 24px;
+      box-shadow: 0 8px 24px var(--shadow);
+      padding: 40px 30px;
+    }
+
+    h1 {
+      font-family: 'Caveat', cursive;
+      font-size: 3.2rem;
+      color: var(--blue-accent);
+      text-align: center;
+      margin-bottom: 0;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #64748b;
+      text-align: center;
+      margin-top: -8px;
+      margin-bottom: 40px;
+      font-weight: 500;
+      letter-spacing: 0.5px;
+    }
+
+    .session-card {
+      background-color: var(--white);
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 16px var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .session-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    .session-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #e5e7eb;
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+
+    .session-date {
+      font-weight: 600;
+      color: var(--blue-accent);
+      font-size: 1rem;
+    }
+
+    .session-stats {
+      display: flex;
+      gap: 16px;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .session-body {
+      font-size: 1.05rem;
+      line-height: 1.6;
+      color: #334155;
+      padding-top: 6px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 28px;
+      font-weight: 600;
+      color: var(--blue-primary);
+      text-decoration: none;
+      font-size: 1.1rem;
+      transition: color 0.2s ease;
+    }
+
+    .back-link:hover {
+      color: var(--blue-accent);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>speaking progress history 📈</h1>
+    <p class="subtitle">by justin dutta</p>
+
+    <div id="history-container">
+      <p style="text-align:center;">loading history...</p>
+    </div>
+
+    <a href="/" class="back-link">← back to live transcription</a>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const historyContainer = document.getElementById('history-container');
+
+      fetch('/api/history')
+        .then(response => response.json())
+        .then(sessions => {
+          historyContainer.innerHTML = "";
+
+          if (sessions.length === 0) {
+            historyContainer.innerHTML = "<p style='text-align:center;'>no sessions recorded yet. go back and try a recording! 💬</p>";
+            return;
+          }
+
+          sessions.forEach(session => {
+            const card = document.createElement('div');
+            card.className = 'session-card';
+
+            const date = new Date(session.timestamp);
+            const formattedDate = date.toLocaleString('en-US', {
+              year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
+
+            card.innerHTML = `
+              <div class="session-header">
+                <div class="session-date">${formattedDate}</div>
+                <div class="session-stats">
+                  <span><strong>wpm:</strong> ${session.avg_wpm}</span>
+                  <span><strong>fillers:</strong> ${session.filler_count}</span>
+                  <span><strong>duration:</strong> ${session.duration}s</span>
+                </div>
+              </div>
+              <div class="session-body">
+                <p>${session.transcription}</p>
+              </div>
+            `;
+
+            historyContainer.appendChild(card);
+          });
+        })
+        .catch(error => {
+          console.error("error fetching history:", error);
+          historyContainer.innerHTML = "<p style='text-align:center;'>could not load history. please try again later.</p>";
+        });
+    });
+  </script>
+</body>
+</html>
