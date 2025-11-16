@@ -27,11 +27,12 @@
 
 ### Installation
 1. Clone the repository:
-   ```
-   bash
-   git clone https://github.com/miscodings/speakhelp.git
-   cd speakhelp
-   ```
+  ```
+  bash
+  git clone https://github.com/miscodings/speakhelp.git
+  cd speakhelp
+  ```
+
 2. Install Python dependencies:
   ```
   pip install -r requirements.txt
@@ -51,14 +52,14 @@ The database history.db will be created automatically on first run.
 
 Then open your browser and navigate to http://localhost:5000 to start using SpeakHelp.
 
-Usage
+Usage:
 - Click Start Recording to begin a session.
 - Speak naturally while the app transcribes your speech in real time.
 - View metrics such as average WPM and filler word count live.
 - Click Stop Recording to save the session and review detailed stats.
 
-Contributing
-Contributions are welcome! Feel free to submit pull requests or open issues for feature requests and bug fixes.
+Contributing:
+- Contributions are welcome! Feel free to submit pull requests or open issues for feature requests and bug fixes.
 
-License
-MIT License
+License:
+- MIT License
