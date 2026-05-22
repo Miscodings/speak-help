@@ -54,3 +54,13 @@ desktop.ini
 # Logs
 *.log
 logs/
+
+# Next.js
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.env.local
+frontend/.env*.local
+
+# Backend env
+backend/.env

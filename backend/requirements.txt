@@ -1,0 +1,10 @@
+flask
+flask-socketio
+flask-cors
+simple-websocket
+groq
+python-dotenv
+scipy
+numpy
+PyJWT
+cryptography

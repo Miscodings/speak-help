@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+/* ── Theme tokens ──────────────────────────────────────────────── */
+:root {
+  --blue-primary: #3b82f6;
+  --blue-accent:  #2563eb;
+
+  --bg:           #f0f7ff;
+  --card:         #ffffff;
+  --card-border:  rgba(59,130,246,0.13);
+  --text-1:       #0c1830;
+  --text-2:       #3d5478;
+  --text-3:       #8aa0be;
+  --accent:       #2563eb;
+  --accent-hi:    #3b82f6;
+  --accent-glow:  rgba(59,130,246,0.14);
+  --nav-bg:       rgba(240,247,255,0.92);
+  --shadow-md:    0 10px 32px rgba(30,60,110,0.10);
+  --shadow-accent: 0 8px 28px rgba(37,99,235,0.22);
+}
+
+.dark {
+  --bg:           #050c1a;
+  --card:         rgba(10,22,50,0.95);
+  --card-border:  rgba(56,189,248,0.1);
+  --text-1:       #e8f1ff;
+  --text-2:       #8faecf;
+  --text-3:       #536d8a;
+  --accent:       #38bdf8;
+  --accent-hi:    #7dd3fc;
+  --accent-glow:  rgba(56,189,248,0.12);
+  --nav-bg:       rgba(4,10,24,0.94);
+  --shadow-md:    0 10px 32px rgba(0,0,0,0.55);
+  --shadow-accent: 0 8px 28px rgba(56,189,248,0.18);
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background-color: var(--bg);
+  color: var(--text-1);
+  font-family: var(--font-syne), sans-serif;
+  transition: background-color 0.3s ease, color 0.2s ease;
+  min-height: 100vh;
+}
+
+.gradient-text {
+  background: linear-gradient(128deg, var(--blue-primary) 0%, #6366f1 50%, #a78bfa 100%);
+  background-size: 200% 200%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-pan 6s ease infinite;
+}
+
+@keyframes gradient-pan {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.filler-word {
+  background: rgba(251,191,36,0.18);
+  color: #c47f0b;
+  font-style: italic;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border-bottom: 1.5px solid rgba(196,127,11,0.35);
+}
+
+.dark .filler-word {
+  background: rgba(251,191,36,0.1);
+  color: #fbbf24;
+  border-color: rgba(251,191,36,0.25);
+}
+
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 6px; }
