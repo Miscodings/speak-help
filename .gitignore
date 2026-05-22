@@ -1,0 +1,56 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+whisper-app-env/
+
+# Flask / app
+instance/
+*.db
+*.sqlite3
+.env
+.env.*
+!.env.example
+
+# Whisper model cache
+~/.cache/huggingface/
+models/
+*.bin
+*.pt
+*.ot
+*.gguf
+
+# Temp / audio files
+*.wav
+*.mp3
+*.mp4
+*.webm
+tmp/
+temp/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/

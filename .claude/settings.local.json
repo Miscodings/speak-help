@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(whisper-app-env\\\\Scripts\\\\python.exe --version)",
+      "Bash(where python *)",
+      "Bash(where python3 *)"
+    ]
+  }
+}
