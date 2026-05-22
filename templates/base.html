@@ -24,6 +24,7 @@
 <body>
 
   <!-- Navbar -->
+  {% block navbar %}
   <nav class="navbar" id="navbar">
     <div class="nav-inner">
       <a href="/" class="nav-brand">
@@ -33,12 +34,18 @@
       <div class="nav-actions">
         <a href="/"        class="nav-link {% if request.endpoint == 'index'   %}active{% endif %}">Studio</a>
         <a href="/history" class="nav-link {% if request.endpoint == 'history' %}active{% endif %}">Progress</a>
+        {% if current_user.is_authenticated %}
+          <span class="nav-user">{{ current_user.email }}</span>
+          <span class="nav-tier tier-{{ current_user.tier }}">{{ current_user.tier }}</span>
+          <a href="/logout" class="nav-link">Logout</a>
+        {% endif %}
         <button class="theme-btn" id="themeBtn" aria-label="Toggle dark mode">
           <span class="theme-icon">☀️</span>
         </button>
       </div>
     </div>
   </nav>
+  {% endblock %}
 
   <main>{% block content %}{% endblock %}</main>
 

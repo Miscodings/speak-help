@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}SpeakHelp — Sign In{% endblock %}
+{% block navbar %}{% endblock %}
+
+{% block content %}
+<div class="auth-wrap">
+  <div class="auth-card">
+
+    <a href="/" class="auth-brand">
+      <div class="brand-mark">🎙️</div>
+      <span class="brand-word">SpeakHelp</span>
+    </a>
+
+    <h1 class="auth-title">Welcome back</h1>
+    <p class="auth-sub">Sign in to your account to continue.</p>
+
+    {% if error %}
+    <div class="auth-error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-input" type="email" id="email" name="email"
+               autocomplete="email" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input class="form-input" type="password" id="password" name="password"
+               autocomplete="current-password" required>
+      </div>
+      <button class="auth-btn" type="submit">Sign in</button>
+    </form>
+
+    <p class="auth-switch">No account? <a href="/signup">Sign up free</a></p>
+  </div>
+</div>
+{% endblock %}
