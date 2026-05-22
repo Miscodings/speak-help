@@ -83,47 +83,22 @@
     });
   }
 
-  /* ── Hero entrance ───────────────────────────────────────────── */
+  /* ── Studio entrance ─────────────────────────────────────────── */
   function initHero() {
     if (typeof gsap === 'undefined') return;
 
     const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
-    tl.from('.hero-title',   { y: 32, opacity: 0, duration: 0.65 })
-      .from('.hero-sub',     { y: 22, opacity: 0, duration: 0.55 }, '-=0.45')
-      .from('.hero-byline',  { y: 14, opacity: 0, duration: 0.45 }, '-=0.4')
-      .from('.mic-stage',    { scale: 0.88, opacity: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.35')
-      .from('.stop-btn',     { y: 10, opacity: 0, duration: 0.4 }, '-=0.5');
-
-    /* Parallax orbs */
-    if (typeof ScrollTrigger !== 'undefined') {
-      gsap.to('.orb-a', {
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 1.4 },
-        y: -90
-      });
-      gsap.to('.orb-b', {
-        scrollTrigger: { trigger: '.hero', start: 'top top', end: 'bottom top', scrub: 2 },
-        y: -130
-      });
-    }
+    tl.from('.page-strip',  { y: 14, opacity: 0, duration: 0.45 })
+      .from('.stats-row',   { y: 22, opacity: 0, duration: 0.5 }, '-=0.2')
+      .from('.mic-stage',   { scale: 0.88, opacity: 0, duration: 0.5, ease: 'back.out(1.7)' }, '-=0.3')
+      .from('.stop-btn',    { y: 8,  opacity: 0, duration: 0.35 }, '-=0.4')
+      .from('.tx-panel',    { y: 18, opacity: 0, duration: 0.5 }, '-=0.35');
   }
 
   /* ── Scroll-triggered fade-ups ───────────────────────────────── */
   function initScrollReveal() {
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-
-    /* stat cards */
-    gsap.from('.stat-card', {
-      scrollTrigger: { trigger: '.stats-row', start: 'top 86%' },
-      y: 36, opacity: 0, duration: 0.6,
-      stagger: 0.1, ease: 'power3.out'
-    });
-
-    /* transcription panel */
-    gsap.from('.tx-panel', {
-      scrollTrigger: { trigger: '.tx-panel', start: 'top 88%' },
-      y: 28, opacity: 0, duration: 0.65, ease: 'power3.out'
-    });
 
     /* page hero (history) */
     const ph = document.querySelector('.page-hero');

@@ -7,44 +7,15 @@
 
 {% block content %}
 
-<!-- Hero -->
-<section class="hero">
-  <div class="hero-canvas">
-    <div class="orb orb-a"></div>
-    <div class="orb orb-b"></div>
-    <div class="orb orb-c"></div>
-  </div>
+<!-- Thin brand strip -->
+<header class="page-strip">
+  <h1 class="strip-title">SpeakHelp</h1>
+  <p class="strip-sub">real-time speaking coach · by justin dutta</p>
+</header>
 
-  <div class="hero-body">
-    <h1 class="hero-title">
-      Speak with <em>Confidence</em>
-    </h1>
-
-    <p class="hero-sub">
-      Real-time transcription & live feedback for better public speaking.
-    </p>
-
-    <p class="hero-byline">by justin dutta</p>
-  </div>
-</section>
-
-<!-- Recording studio -->
+<!-- Studio workspace -->
 <section class="studio">
   <div class="container">
-
-    <!-- Mic button -->
-    <div class="record-panel">
-      <div class="mic-stage" id="micStage">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <button class="mic-btn" id="startBtn" aria-label="Start recording">
-          <span class="mic-icon">🎙️</span>
-          <span class="mic-label">record</span>
-        </button>
-      </div>
-      <button class="stop-btn" id="stopBtn" disabled>Stop Recording</button>
-    </div>
 
     <!-- Live stats -->
     <div class="stats-row">
@@ -56,7 +27,10 @@
 
       <div class="stat-card">
         <span class="stat-glyph">💬</span>
-        <div class="stat-tag">Filler Words</div>
+        <div class="stat-tag">
+          Filler Words
+          <span class="info-tip" data-tip="Whisper may suppress softly spoken fillers">ⓘ</span>
+        </div>
         <div class="stat-num" id="fillerVal">0</div>
       </div>
 
@@ -67,6 +41,20 @@
           😮‍💨 deep breaths, you got this.
         </div>
       </div>
+    </div>
+
+    <!-- Mic button (sits right above transcript) -->
+    <div class="record-panel">
+      <div class="mic-stage" id="micStage">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring"></div>
+        <button class="mic-btn" id="startBtn" aria-label="Start recording">
+          <span class="mic-icon">🎙️</span>
+          <span class="mic-label">record</span>
+        </button>
+      </div>
+      <button class="stop-btn" id="stopBtn" disabled>Stop Recording</button>
     </div>
 
     <!-- Transcription -->
