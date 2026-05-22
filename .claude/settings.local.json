@@ -3,7 +3,8 @@
     "allow": [
       "Bash(whisper-app-env\\\\Scripts\\\\python.exe --version)",
       "Bash(where python *)",
-      "Bash(where python3 *)"
+      "Bash(where python3 *)",
+      "Bash(grep *)"
     ]
   }
 }

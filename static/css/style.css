@@ -60,8 +60,8 @@ html {
   --card-border: rgba(56,189,248,0.1);
 
   --text-1: #e8f1ff;
-  --text-2: #7896c0;
-  --text-3: #3d5478;
+  --text-2: #8faecf;
+  --text-3: #536d8a;
 
   --nav-bg: rgba(4,10,24,0.94);
   --nav-border: rgba(56,189,248,0.08);
@@ -539,6 +539,113 @@ main { padding-top: 78px; }
   border-color: rgba(251,191,36,0.25);
 }
 
+/* ─── Two-column studio layout ───────────────────────────────── */
+.studio-cols {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  align-items: start;
+}
+
+.studio-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ─── Coach panel ────────────────────────────────────────────── */
+.coach-panel {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 76px;
+}
+
+.coach-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px;
+  border-bottom: 1px solid var(--card-border);
+}
+
+.coach-title {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+
+.coach-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  background: var(--accent-glow);
+  border: 1px solid var(--card-border);
+  border-radius: 100px;
+  padding: 2px 9px;
+}
+
+.coach-body {
+  padding: 12px;
+  min-height: 180px;
+  max-height: 440px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.coach-body::-webkit-scrollbar { width: 4px; }
+.coach-body::-webkit-scrollbar-thumb { background: var(--card-border); border-radius: 4px; }
+
+.coach-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 160px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.coach-empty p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  line-height: 1.65;
+  color: var(--text-3);
+  letter-spacing: 0.03em;
+}
+
+.coach-note {
+  background: var(--accent-glow);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 10px 13px;
+  opacity: 0;
+}
+
+.note-time {
+  display: block;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: var(--accent);
+  margin-bottom: 5px;
+}
+
+.note-text {
+  font-size: 0.83rem;
+  line-height: 1.5;
+  color: var(--text-1);
+  font-weight: 500;
+}
+
 /* ─── Page hero (history) ─────────────────────────────────────── */
 .page-hero {
   min-height: 42vh;
@@ -579,7 +686,7 @@ main { padding-top: 78px; }
 }
 
 /* ─── Overview stats ─────────────────────────────────────────── */
-.overview { padding: 0 0 44px; }
+.overview { padding: 4px 0 36px; }
 
 .overview-grid {
   display: grid;
@@ -604,7 +711,7 @@ main { padding-top: 78px; }
   font-size: 0.64rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
   margin-bottom: 10px;
 }
 
@@ -625,7 +732,7 @@ main { padding-top: 78px; }
   font-size: 0.68rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--text-3);
+  color: var(--text-2);
   margin-bottom: 22px;
 }
 
@@ -718,14 +825,14 @@ main { padding-top: 78px; }
 .sc-text {
   font-size: 0.95rem;
   line-height: 1.75;
-  color: var(--text-2);
+  color: var(--text-1);
 }
 
 /* ─── Empty state ────────────────────────────────────────────── */
 .empty {
   text-align: center;
   padding: 72px 32px;
-  color: var(--text-3);
+  color: var(--text-2);
 }
 
 .empty-icon { font-size: 2.6rem; margin-bottom: 14px; }
@@ -782,6 +889,8 @@ main { padding-top: 78px; }
   .nav-inner { padding: 0 20px; }
   .container { padding: 0 20px; }
   .page-hero, .page-strip { padding-left: 20px; padding-right: 20px; }
+  .studio-cols { grid-template-columns: 1fr; }
+  .coach-panel { position: static; }
 }
 
 @media (max-width: 520px) {

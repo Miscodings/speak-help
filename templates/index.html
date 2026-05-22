@@ -7,13 +7,11 @@
 
 {% block content %}
 
-<!-- Thin brand strip -->
 <header class="page-strip">
   <h1 class="strip-title">SpeakHelp</h1>
   <p class="strip-sub">real-time speaking coach · by justin dutta</p>
 </header>
 
-<!-- Studio workspace -->
 <section class="studio">
   <div class="container">
 
@@ -24,7 +22,6 @@
         <div class="stat-tag">Words / Min</div>
         <div class="stat-num" id="wpmVal">0</div>
       </div>
-
       <div class="stat-card">
         <span class="stat-glyph">💬</span>
         <div class="stat-tag">
@@ -33,7 +30,6 @@
         </div>
         <div class="stat-num" id="fillerVal">0</div>
       </div>
-
       <div class="stat-card stat-feedback">
         <span class="stat-glyph">🧠</span>
         <div class="stat-tag">Live Feedback</div>
@@ -43,32 +39,51 @@
       </div>
     </div>
 
-    <!-- Mic button (sits right above transcript) -->
-    <div class="record-panel">
-      <div class="mic-stage" id="micStage">
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <div class="pulse-ring"></div>
-        <button class="mic-btn" id="startBtn" aria-label="Start recording">
-          <span class="mic-icon">🎙️</span>
-          <span class="mic-label">record</span>
-        </button>
-      </div>
-      <button class="stop-btn" id="stopBtn" disabled>Stop Recording</button>
-    </div>
+    <!-- Two-column workspace -->
+    <div class="studio-cols">
 
-    <!-- Transcription -->
-    <div class="tx-panel" id="txPanel">
-      <div class="tx-header">
-        <span class="tx-title">Live Transcript</span>
-        <div class="rec-badge" id="recBadge">
-          <span class="rec-dot"></span> Recording
+      <!-- Left: mic + transcript -->
+      <div class="studio-main">
+        <div class="record-panel">
+          <div class="mic-stage" id="micStage">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring"></div>
+            <button class="mic-btn" id="startBtn" aria-label="Start recording">
+              <span class="mic-icon">🎙️</span>
+              <span class="mic-label">record</span>
+            </button>
+          </div>
+          <button class="stop-btn" id="stopBtn" disabled>Stop Recording</button>
+        </div>
+
+        <div class="tx-panel" id="txPanel">
+          <div class="tx-header">
+            <span class="tx-title">Live Transcript</span>
+            <div class="rec-badge" id="recBadge">
+              <span class="rec-dot"></span> Recording
+            </div>
+          </div>
+          <div class="tx-body" id="transcription">
+            <span class="tx-placeholder">transcription will appear here…</span>
+          </div>
         </div>
       </div>
-      <div class="tx-body" id="transcription">
-        <span class="tx-placeholder">transcription will appear here…</span>
-      </div>
-    </div>
+
+      <!-- Right: AI coach notes -->
+      <aside class="coach-panel">
+        <div class="coach-head">
+          <span class="coach-title">Coach Notes</span>
+          <span class="coach-badge">AI</span>
+        </div>
+        <div class="coach-body" id="coachNotes">
+          <div class="coach-empty" id="coachEmpty">
+            <p>Start recording to get live coaching tips.</p>
+          </div>
+        </div>
+      </aside>
+
+    </div><!-- /studio-cols -->
 
   </div>
 </section>

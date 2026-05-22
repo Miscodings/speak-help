@@ -5,6 +5,7 @@ import time
 from config import FILLER_WORDS
 from database import init_db, get_all_sessions, save_session
 from transcriber import transcribe_audio
+from feedback import get_coaching_tip
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'speakhelp-live-demo-key'
@@ -34,7 +35,8 @@ def handle_connect():
     print(f"[CONNECTED] {sid}")
     clients[sid] = {
         "buffer": [], "is_transcribing": False,
-        "start_time": None, "last_trigger_time": None
+        "start_time": None, "last_trigger_time": None,
+        "transcript": "", "words_since_feedback": 0
     }
 
 
@@ -52,7 +54,9 @@ def handle_start_recording():
         state.update({
             "start_time": time.time(),
             "buffer": [],
-            "last_trigger_time": time.time()
+            "last_trigger_time": time.time(),
+            "transcript": "",
+            "words_since_feedback": 0
         })
 
 
@@ -79,8 +83,20 @@ def _transcribe_task(sid):
     try:
         text = transcribe_audio(audio_bytes)
         if text:
+            state["transcript"] = (state.get("transcript", "") + " " + text).strip()
+
             with app.app_context():
                 socketio.emit('transcription_update', text, room=sid)
+
+            # Fire AI feedback every ~20 new words
+            state["words_since_feedback"] = state.get("words_since_feedback", 0) + len(text.split())
+            if state["words_since_feedback"] >= 20:
+                state["words_since_feedback"] = 0
+                tip = get_coaching_tip(state["transcript"])
+                if tip:
+                    elapsed = int(time.time() - state["start_time"])
+                    with app.app_context():
+                        socketio.emit('ai_feedback', {'tip': tip, 'elapsed': elapsed}, room=sid)
     finally:
         if sid in clients:
             clients[sid]["is_transcribing"] = False
