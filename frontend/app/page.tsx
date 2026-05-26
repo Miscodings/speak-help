@@ -8,22 +8,9 @@ import CoachPanel, { CoachNote } from "@/components/CoachPanel";
 import UsageMeter from "@/components/UsageMeter";
 import ReportModal, { Report } from "@/components/ReportModal";
 import { getSocket, currentSocket, disconnectSocket } from "@/lib/socket";
+import { FILLERS, highlight } from "@/lib/highlight";
 
 const SAMPLE_RATE = 16000;
-const FILLERS = [
-  "um","uh","er","ah",
-  "like","basically","actually","you know","so","literally",
-  "i mean","well","okay","ok","right","anyway","honestly",
-  "totally","seriously","obviously","sort of","kind of","you see",
-];
-
-function highlight(text: string) {
-  let out = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
-  FILLERS.forEach(w => {
-    out = out.replace(new RegExp(`\\b${w}\\b`, "gi"), m => `<span class="filler-word">${m}</span>`);
-  });
-  return out;
-}
 
 export default function StudioPage() {
   const { getToken } = useAuth();

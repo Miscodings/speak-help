@@ -12,7 +12,9 @@
       "Bash(npm list *)",
       "Bash(C:\\\\Users\\\\wolsi\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe *)",
       "WebSearch",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "PowerShell(New-Item *)",
+      "PowerShell(C:\\\\Users\\\\wolsi\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe -m pip install pytest pytest-flask 2>&1 | Select-Object -Last 3)"
     ]
   }
 }
