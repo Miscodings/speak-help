@@ -9,3 +9,4 @@ scipy
 numpy
 PyJWT
 cryptography
+gunicorn

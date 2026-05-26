@@ -25,6 +25,7 @@ socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 
 stripe.api_key = os.environ.get('STRIPE_SECRET_KEY')
 
+init_db()
 clients = {}
 
 
@@ -274,4 +275,5 @@ def handle_stop_recording(final_text):
 
 if __name__ == '__main__':
     init_db()
-    socketio.run(app, debug=False, use_reloader=False, port=5000)
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, debug=False, use_reloader=False, port=port, host='0.0.0.0')

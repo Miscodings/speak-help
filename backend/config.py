@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -10,7 +11,7 @@ FILLER_WORDS = [
     "i mean", "well", "okay", "ok", "right", "anyway", "honestly",
     "totally", "seriously", "obviously", "sort of", "kind of", "you see",
 ]
-DB_FILE = "history.db"
+DB_FILE = os.environ.get("DATABASE_PATH", "history.db")
 SILENCE_THRESHOLD = 0.01
 
 TIER_LIMITS = {
