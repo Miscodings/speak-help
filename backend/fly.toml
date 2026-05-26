@@ -1,5 +1,4 @@
 app = "speak-help-backend"
-primary_region = "iad"
 
 [build]
 
