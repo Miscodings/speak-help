@@ -5,10 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import StatCard from "@/components/StatCard";
 import CoachPanel, { CoachNote } from "@/components/CoachPanel";
+import UsageMeter from "@/components/UsageMeter";
+import ReportModal, { Report } from "@/components/ReportModal";
 import { getSocket, currentSocket, disconnectSocket } from "@/lib/socket";
 
 const SAMPLE_RATE = 16000;
-const FILLERS = ["um","uh","like","basically","actually","you know","so","literally","i mean","well"];
+const FILLERS = [
+  "um","uh","er","ah",
+  "like","basically","actually","you know","so","literally",
+  "i mean","well","okay","ok","right","anyway","honestly",
+  "totally","seriously","obviously","sort of","kind of","you see",
+];
 
 function highlight(text: string) {
   let out = text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -28,6 +35,15 @@ export default function StudioPage() {
   const [feedback, setFeedback] = useState("😮‍💨 deep breaths, you got this.");
   const [coachNotes, setCoachNotes] = useState<CoachNote[]>([]);
   const noteIdRef = useRef(0);
+  const [usage, setUsage] = useState<null | {
+    tier: string;
+    transcription_seconds_used: number;
+    ai_tips_used: number;
+    limits: { transcription_seconds: number | null; ai_tips: number | null };
+  }>(null);
+  const [limitBanner, setLimitBanner] = useState<string | null>(null);
+  const [report, setReport] = useState<Report | null>(null);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const audioContextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -78,6 +94,14 @@ export default function StudioPage() {
       setFillers(filler_count);
     });
 
+    socket.on("limit_reached", ({ type }: { type: string }) => {
+      const msg = type === "transcription"
+        ? "You've hit your 60 min/month transcription limit. Upgrade for unlimited access."
+        : "You've used your 20 free AI tips this month. Upgrade for unlimited coaching.";
+      setLimitBanner(msg);
+      if (type === "transcription") stopRecording();
+    });
+
     socket.on("ai_feedback", ({ tip, elapsed }: { tip: string; elapsed: number }) => {
       noteIdRef.current += 1;
       setCoachNotes(prev => [{ id: noteIdRef.current, tip, elapsed }, ...prev].slice(0, 8));
@@ -101,7 +125,7 @@ export default function StudioPage() {
     }
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     try { processorRef.current?.disconnect(); } catch {}
     try { streamRef.current?.getTracks().forEach(t => t.stop()); } catch {}
     try { audioContextRef.current?.close(); } catch {}
@@ -124,13 +148,60 @@ export default function StudioPage() {
 
     updateStats();
     setRecording(false);
+
+    const txt = transcriptRef.current.trim();
+    if (txt && usage && usage.tier !== "free") {
+      const durationSecs = (Date.now() - startTimeRef.current) / 1000;
+      const words = txt.split(/\s+/).filter(Boolean);
+      const avgWpm = durationSecs > 0 ? Math.round((words.length / durationSecs) * 60) : 0;
+      const fc = FILLERS.reduce((n, f) => n + (txt.match(new RegExp(`\\b${f}\\b`, "gi")) || []).length, 0);
+      setReportLoading(true);
+      try {
+        const token = await getToken();
+        const res = await fetch("/api/generate-report", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ transcript: txt, duration_secs: durationSecs, filler_count: fc, avg_wpm: avgWpm }),
+        });
+        if (res.ok) setReport(await res.json());
+      } catch {}
+      setReportLoading(false);
+    }
   };
+
+  // Fetch usage on mount
+  useEffect(() => {
+    (async () => {
+      const token = await getToken();
+      if (!token) return;
+      const res = await fetch("/api/usage", { headers: { Authorization: `Bearer ${token}` } });
+      if (res.ok) setUsage(await res.json());
+    })();
+  }, [getToken]);
 
   useEffect(() => () => { disconnectSocket(); }, []);
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "var(--bg)" }}>
       <Navbar />
+      <ReportModal report={report} onClose={() => setReport(null)} />
+
+      {/* Limit banner */}
+      <AnimatePresence>
+        {limitBanner && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="fixed top-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 px-5 py-3 rounded-2xl text-sm font-semibold shadow-lg"
+            style={{ background: "var(--card)", border: "1px solid #f59e0b", color: "var(--text-1)", maxWidth: "520px" }}
+          >
+            <span>⚠️ {limitBanner}</span>
+            <a href="/pricing" className="underline whitespace-nowrap" style={{ color: "var(--accent)" }}>Upgrade →</a>
+            <button onClick={() => setLimitBanner(null)} style={{ color: "var(--text-3)", marginLeft: 4 }}>✕</button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <header className="pt-28 pb-5 text-center">
         <h1 className="font-serif text-3xl tracking-tight" style={{ color: "var(--text-1)" }}>
@@ -161,6 +232,19 @@ export default function StudioPage() {
           <div className="flex flex-col gap-4">
             {/* Mic toggle */}
             <div className="flex flex-col items-center gap-2">
+              <AnimatePresence>
+                {reportLoading && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    className="font-mono text-xs tracking-wide"
+                    style={{ color: "var(--accent)" }}
+                  >
+                    Generating report…
+                  </motion.p>
+                )}
+              </AnimatePresence>
               <div className="relative flex items-center justify-center w-24 h-24">
                 {recording && [0, 1, 2].map(i => (
                   <motion.div
@@ -250,9 +334,15 @@ export default function StudioPage() {
             </motion.div>
           </div>
 
-          {/* Coach panel */}
-          <motion.div initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}>
+          {/* Coach panel + usage meter */}
+          <motion.div
+            className="flex flex-col gap-3"
+            initial={{ opacity: 0, x: 12 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.25 }}
+          >
             <CoachPanel notes={coachNotes} />
+            {usage && <UsageMeter usage={usage} />}
           </motion.div>
         </div>
       </main>

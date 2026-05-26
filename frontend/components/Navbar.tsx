@@ -66,6 +66,16 @@ export default function Navbar() {
           >
             Progress
           </Link>
+          <Link
+            href="/pricing"
+            className="px-3.5 py-1.5 rounded-lg text-sm font-semibold transition-all"
+            style={{
+              color: pathname === "/pricing" ? "var(--accent)" : "var(--text-2)",
+              background: pathname === "/pricing" ? "var(--accent-glow)" : "transparent",
+            }}
+          >
+            Pricing
+          </Link>
 
           {/* Theme toggle */}
           {mounted && (

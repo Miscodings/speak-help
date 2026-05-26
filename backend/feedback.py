@@ -47,3 +47,38 @@ def get_coaching_tip(transcript):
     except Exception as e:
         print(f"[FEEDBACK ERROR] {e}")
         return None
+
+
+def generate_report(transcript: str, duration_secs: float, filler_count: int, avg_wpm: int) -> dict | None:
+    client = _get_client()
+    if not client:
+        return None
+
+    words = transcript.strip().split()
+    if len(words) < 20:
+        return None
+
+    prompt = (
+        "You are an expert public speaking coach. Analyse this transcript and return a JSON object with exactly these keys:\n"
+        '- "score": integer 0-100 overall speaking score\n'
+        '- "pacing": one sentence about WPM and pacing arc\n'
+        '- "fillers": one sentence naming the most-used filler words and where they clustered\n'
+        '- "improvements": array of exactly 3 short, specific, actionable coaching tips (each under 15 words)\n\n'
+        f"Duration: {round(duration_secs)}s | Avg WPM: {avg_wpm} | Filler count: {filler_count}\n"
+        f'Transcript:\n"""\n{transcript[:2000]}\n"""\n\n'
+        "Reply with only valid JSON — no markdown, no preamble."
+    )
+
+    try:
+        import json
+        resp = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=300,
+            temperature=0.4,
+        )
+        raw = resp.choices[0].message.content.strip()
+        return json.loads(raw)
+    except Exception as e:
+        print(f"[REPORT ERROR] {e}")
+        return None

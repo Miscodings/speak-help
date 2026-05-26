@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${dmSerif.variable} ${syne.variable} ${dmMono.variable} antialiased`}>
+        <body className={`${dmSerif.variable} ${syne.variable} ${dmMono.variable} antialiased`} suppressHydrationWarning>
           <ThemeProvider>
             {children}
           </ThemeProvider>
