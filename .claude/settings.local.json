@@ -14,7 +14,11 @@
       "WebSearch",
       "WebFetch(domain:raw.githubusercontent.com)",
       "PowerShell(New-Item *)",
-      "PowerShell(C:\\\\Users\\\\wolsi\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe -m pip install pytest pytest-flask 2>&1 | Select-Object -Last 3)"
+      "PowerShell(C:\\\\Users\\\\wolsi\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python311\\\\python.exe -m pip install pytest pytest-flask 2>&1 | Select-Object -Last 3)",
+      "mcp__magic__21st_magic_component_inspiration",
+      "mcp__magic__21st_magic_component_refiner",
+      "Bash(python -c \"import app; print\\('backend imports OK'\\)\")",
+      "Bash(Remove-Item *)"
     ]
   }
 }

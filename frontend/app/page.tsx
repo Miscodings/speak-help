@@ -12,40 +12,11 @@ import { FILLERS, highlight } from "@/lib/highlight";
 const SAMPLE_RATE = 16000;
 
 const FEEDBACK_POOL = {
-  start: [
-    "😮‍💨 deep breaths, you got this.",
-    "🎙️ whenever you're ready…",
-    "✨ let's make this one count.",
-    "🧘 relax your shoulders. breathe.",
-  ],
-  fillers: [
-    "💬 watch the filler words.",
-    "⚠️ too many fillers — slow down.",
-    "🚨 pause instead of filling silence.",
-    "💡 replace fillers with a beat of silence.",
-    "🎯 take your time — silence is power.",
-  ],
-  fast: [
-    "⏳ slow it down a little.",
-    "🐇 you're rushing — breathe.",
-    "📉 pace yourself, you're flying.",
-    "🌊 think of it like waves — ride the rhythm.",
-  ],
-  slow: [
-    "🎙️ project your voice more!",
-    "📢 speak up and engage your audience.",
-    "⬆️ pick up the energy a touch.",
-    "🔊 you've got more to give — let it out.",
-  ],
-  good: [
-    "👍 great pace, keep going!",
-    "🔥 you're on a roll!",
-    "✅ solid delivery right there.",
-    "💪 that's the rhythm — hold it!",
-    "🌟 sounding confident and clear.",
-    "🎯 crisp and controlled — excellent.",
-    "🎶 your cadence is spot on.",
-  ],
+  start:   ["ready when you are.", "take a breath.", "you've got this."],
+  fillers: ["watch the fillers.", "pause, don't fill.", "slow down a beat."],
+  fast:    ["slow it down.", "breathe.", "pace yourself."],
+  slow:    ["pick up the pace.", "project more.", "engage them."],
+  good:    ["great pace.", "keep it up.", "solid delivery.", "on a roll.", "sounding clear."],
 };
 
 const pick = (arr: string[]) => arr[Math.floor(Math.random() * arr.length)];
@@ -185,7 +156,7 @@ export default function StudioPage() {
       noteIdRef.current += 1;
       setCoachNotes(prev => [{ id: noteIdRef.current, tip, elapsed: e }, ...prev].slice(0, 8));
       aiTipActiveRef.current = true;
-      setFeedback(`💡 ${tip}`);
+      setFeedback(tip.split(" ").slice(0, 5).join(" ").replace(/\.$/, "") + ".");
       setFeedbackCat("good");
       if (aiTipTimeoutRef.current) clearTimeout(aiTipTimeoutRef.current);
       aiTipTimeoutRef.current = setTimeout(() => {
@@ -271,8 +242,6 @@ export default function StudioPage() {
 
   useEffect(() => () => { disconnectSocket(); }, []);
 
-  const feedbackEmoji = feedback.match(/^(\S+)/)?.[1] ?? "💭";
-  const feedbackText = feedback.replace(/^\S+\s*/, "");
   const accentColor = CATEGORY_COLORS[feedbackCat] ?? "var(--accent)";
 
   return (
@@ -409,37 +378,26 @@ export default function StudioPage() {
           </div>
         </div>
 
-        {/* ── Live Feedback Banner ────────────────────────────────── */}
+        {/* ── Live Feedback ──────────────────────────────────────── */}
         <AnimatePresence mode="wait">
           <motion.div
             key={feedback}
-            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="rounded-2xl px-5 py-4 mb-4 flex items-center gap-4"
-            style={{
-              background: "var(--card)",
-              border: `1px solid ${accentColor}28`,
-              boxShadow: `var(--shadow-sm), 0 0 20px ${accentColor}10`,
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex items-center justify-center gap-2 mb-4 py-2"
           >
             <div
-              className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 text-lg"
-              style={{ background: `${accentColor}18`, border: `1px solid ${accentColor}28` }}
-            >
-              {feedbackEmoji}
-            </div>
-            <span
-              className="text-sm font-semibold leading-snug flex-1"
-              style={{ color: "var(--text-1)", fontFamily: "var(--font-syne)" }}
-            >
-              {feedbackText}
-            </span>
-            <div
-              className="w-1.5 h-6 rounded-full flex-shrink-0"
-              style={{ background: `linear-gradient(180deg, ${accentColor}, ${accentColor}55)` }}
+              className="w-1.5 h-1.5 rounded-full flex-shrink-0"
+              style={{ background: accentColor }}
             />
+            <span
+              className="font-mono text-xs tracking-wide"
+              style={{ color: "var(--text-2)" }}
+            >
+              {feedback}
+            </span>
           </motion.div>
         </AnimatePresence>
 

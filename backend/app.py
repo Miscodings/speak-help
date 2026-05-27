@@ -96,6 +96,31 @@ def create_checkout_session():
     return jsonify({'url': session.url})
 
 
+@app.route('/api/sync-subscription', methods=['POST'])
+@require_auth
+def sync_subscription():
+    """Pull the current Stripe subscription status and update the DB tier."""
+    profile = get_or_create_profile(g.user_id)
+    customer_id = profile.get('stripe_customer_id')
+    if not customer_id:
+        return jsonify({'tier': 'free', 'synced': False})
+
+    try:
+        subs = stripe.Subscription.list(customer=customer_id, status='active', limit=1)
+        if subs.data:
+            sub = subs.data[0]
+            price_id = sub['items']['data'][0]['price']['id']
+            tier = 'studio' if price_id == os.environ.get('STRIPE_PRICE_STUDIO') else 'pro'
+            update_tier(g.user_id, tier, sub.id)
+            return jsonify({'tier': tier, 'synced': True})
+        else:
+            update_tier(g.user_id, 'free', None)
+            return jsonify({'tier': 'free', 'synced': True})
+    except Exception as e:
+        print(f"[SYNC ERROR] {e}")
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/billing-portal', methods=['POST'])
 @require_auth
 def billing_portal():

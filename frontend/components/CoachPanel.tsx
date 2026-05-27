@@ -37,7 +37,7 @@ export default function CoachPanel({ notes }: { notes: CoachNote[] }) {
         </span>
       </div>
 
-      <div className="p-3 flex flex-col gap-2 max-h-72 overflow-y-auto">
+      <div className="p-3 flex flex-col gap-2">
         <AnimatePresence initial={false}>
           {notes.map((note, idx) => (
             <motion.div

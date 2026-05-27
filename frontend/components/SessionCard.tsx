@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { highlight } from "@/lib/highlight";
 
 interface Session {
   id: number;
@@ -49,11 +50,12 @@ export default function SessionCard({ session }: { session: Session }) {
   const dateLabel = date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   const timeLabel = date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
-  const PREVIEW_LENGTH = 160;
+  const PREVIEW_LENGTH = 200;
   const isLong = session.transcription.length > PREVIEW_LENGTH;
-  const displayText = expanded || !isLong
+  const rawText = expanded || !isLong
     ? session.transcription
     : session.transcription.slice(0, PREVIEW_LENGTH).trimEnd() + "…";
+  const highlightedText = highlight(rawText);
 
   return (
     <motion.div
@@ -113,9 +115,11 @@ export default function SessionCard({ session }: { session: Session }) {
 
         {/* Transcript */}
         <div>
-          <p className="text-sm leading-7" style={{ color: "var(--text-2)" }}>
-            {displayText}
-          </p>
+          <p
+            className="text-sm leading-7"
+            style={{ color: "var(--text-2)" }}
+            dangerouslySetInnerHTML={{ __html: highlightedText }}
+          />
           {isLong && (
             <button
               onClick={() => setExpanded(v => !v)}

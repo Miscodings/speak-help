@@ -42,7 +42,7 @@ export default function Navbar() {
         transition: "padding 0.3s ease, background 0.3s ease, box-shadow 0.3s ease",
       }}
     >
-      <div className="max-w-5xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-5xl mx-auto px-6 flex items-center justify-between relative">
 
         {/* Brand */}
         <Link href="/" className="flex items-center gap-2.5 no-underline group">
@@ -64,9 +64,9 @@ export default function Navbar() {
           </span>
         </Link>
 
-        {/* Nav links */}
+        {/* Nav links — always centered on the page */}
         <div
-          className="flex items-center gap-0.5 rounded-2xl p-1"
+          className="absolute left-1/2 -translate-x-1/2 flex items-center gap-0.5 rounded-2xl p-1"
           style={{ background: "var(--card)", border: "1px solid var(--card-border)" }}
         >
           {NAV_LINKS.map(({ href, label }) => {
