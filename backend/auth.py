@@ -2,6 +2,7 @@
 import os
 import base64
 import json
+import time
 from functools import wraps
 
 import jwt
@@ -9,6 +10,8 @@ import requests
 from flask import request, jsonify, g
 
 _jwks_cache = None
+_jwks_cache_time = 0.0
+_JWKS_TTL = 86400  # refresh every 24 h so key rotations don't cause permanent 401s
 
 
 def _get_clerk_domain():
@@ -27,11 +30,12 @@ def _get_clerk_domain():
 
 
 def _get_jwks():
-    global _jwks_cache
-    if _jwks_cache is None:
+    global _jwks_cache, _jwks_cache_time
+    if _jwks_cache is None or time.time() - _jwks_cache_time > _JWKS_TTL:
         url = f"https://{_get_clerk_domain()}/.well-known/jwks.json"
         print(f"[AUTH] Fetching JWKS from {url}")
         _jwks_cache = requests.get(url, timeout=5).json()
+        _jwks_cache_time = time.time()
     return _jwks_cache
 
 
@@ -43,10 +47,15 @@ def verify_clerk_token(token):
     if key is None:
         raise ValueError("No matching key found in JWKS")
     public_key = jwt.algorithms.RSAAlgorithm.from_jwk(json.dumps(key))
+    audience = os.environ.get('CLERK_JWT_AUDIENCE')
+    # If CLERK_JWT_AUDIENCE is not set, skip aud check (backward compat).
+    # Set it to your Clerk Frontend API URL to harden against cross-app JWT reuse.
+    options = {} if audience else {"verify_aud": False}
     return jwt.decode(
         token, public_key,
         algorithms=['RS256'],
-        options={"verify_aud": False}
+        audience=audience,
+        options=options,
     )
 
 

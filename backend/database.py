@@ -9,6 +9,8 @@ def _current_month():
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
+    conn.execute("PRAGMA journal_mode=WAL")
+    conn.execute("PRAGMA synchronous=NORMAL")
     c = conn.cursor()
 
     c.execute('''CREATE TABLE IF NOT EXISTS sessions (
@@ -154,6 +156,43 @@ def increment_tips(clerk_id):
     )
     conn.commit()
     conn.close()
+
+
+def try_increment_transcription(clerk_id, seconds) -> bool:
+    """Atomically check the free-tier limit and increment. Returns False if at limit."""
+    _reset_if_new_month(clerk_id)
+    amt = max(1, int(seconds))
+    limit = TIER_LIMITS['free']['transcription_seconds']
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.execute(
+        """UPDATE user_profiles
+           SET transcription_seconds_used = transcription_seconds_used + ?
+           WHERE clerk_id = ?
+           AND (tier IN ('pro', 'studio') OR transcription_seconds_used + ? <= ?)""",
+        (amt, clerk_id, amt, limit)
+    )
+    affected = cur.rowcount
+    conn.commit()
+    conn.close()
+    return affected > 0
+
+
+def try_increment_tips(clerk_id) -> bool:
+    """Atomically check the free-tier limit and increment. Returns False if at limit."""
+    _reset_if_new_month(clerk_id)
+    limit = TIER_LIMITS['free']['ai_tips']
+    conn = sqlite3.connect(DB_FILE)
+    cur = conn.execute(
+        """UPDATE user_profiles
+           SET ai_tips_used = ai_tips_used + 1
+           WHERE clerk_id = ?
+           AND (tier IN ('pro', 'studio') OR ai_tips_used < ?)""",
+        (clerk_id, limit)
+    )
+    affected = cur.rowcount
+    conn.commit()
+    conn.close()
+    return affected > 0
 
 
 # ── Sessions ──────────────────────────────────────────────────────

@@ -11,7 +11,7 @@ from database import (
     init_db, get_sessions_for_user, save_session,
     get_or_create_profile, get_profile, get_profile_by_stripe_customer,
     update_tier, update_stripe_customer,
-    get_usage, increment_transcription, increment_tips,
+    get_usage, try_increment_transcription, try_increment_tips,
 )
 from transcriber import transcribe_audio
 from feedback import get_coaching_tip, generate_report
@@ -217,17 +217,14 @@ def _transcribe_task(sid):
     user_id = state.get("user_id")
 
     try:
-        usage = get_usage(user_id)
-        if not usage['transcription_ok']:
+        duration_secs = len(audio_bytes) / 4 / SAMPLE_RATE
+        if not try_increment_transcription(user_id, duration_secs):
             with app.app_context():
                 socketio.emit('limit_reached', {'type': 'transcription'}, room=sid)
             return
 
         text = transcribe_audio(audio_bytes)
         if text:
-            duration_secs = len(audio_bytes) / 4 / SAMPLE_RATE
-            increment_transcription(user_id, duration_secs)
-
             state["transcript"] = (state.get("transcript", "") + " " + text).strip()
             with app.app_context():
                 socketio.emit('transcription_update', text, room=sid)
@@ -239,10 +236,13 @@ def _transcribe_task(sid):
                 if usage['tips_ok']:
                     tip = get_coaching_tip(state["transcript"])
                     if tip:
-                        increment_tips(user_id)
-                        elapsed = int(time.time() - state["start_time"])
-                        with app.app_context():
-                            socketio.emit('ai_feedback', {'tip': tip, 'elapsed': elapsed}, room=sid)
+                        if try_increment_tips(user_id):
+                            elapsed = int(time.time() - state["start_time"])
+                            with app.app_context():
+                                socketio.emit('ai_feedback', {'tip': tip, 'elapsed': elapsed}, room=sid)
+                        else:
+                            with app.app_context():
+                                socketio.emit('limit_reached', {'type': 'ai_tips'}, room=sid)
                 else:
                     with app.app_context():
                         socketio.emit('limit_reached', {'type': 'ai_tips'}, room=sid)
@@ -256,10 +256,15 @@ def handle_stop_recording(final_text):
     state = clients.get(request.sid)
     if not state or not state.get("start_time"):
         return
+    import re
     duration = time.time() - state["start_time"]
     words = final_text.strip().split()
     avg_wpm = round((len(words) / duration) * 60) if duration > 0.5 else 0
-    filler_count = sum(1 for w in words if w.lower().strip(".,?!") in FILLER_WORDS)
+    text_lower = final_text.lower()
+    filler_count = sum(
+        len(re.findall(r'\b' + re.escape(f) + r'\b', text_lower))
+        for f in FILLER_WORDS
+    )
     socketio.emit(
         'final_stats_update',
         {'avg_wpm': avg_wpm, 'filler_count': filler_count},
