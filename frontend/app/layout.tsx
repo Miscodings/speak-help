@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import BackendStatus from "@/components/BackendStatus";
 import { DM_Serif_Display, Syne, DM_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -34,6 +35,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <body className={`${dmSerif.variable} ${syne.variable} ${dmMono.variable} antialiased`} suppressHydrationWarning>
           <ThemeProvider>
             {children}
+            <BackendStatus />
           </ThemeProvider>
         </body>
       </html>
